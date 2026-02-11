@@ -1,0 +1,14 @@
+
+[2026-02-10 10:19:30 AM] to@example.com - 250 2.0.0 OK
+[2026-02-10 10:20:08 AM] to@example.com - 250 2.0.0 OK
+[2026-02-10 10:23:10 AM] to@example.com - 250 2.0.0 OK
+[2026-02-10 10:23:15 AM] to@example.com - 250 2.0.0 OK
+[2026-02-10 10:23:54 AM] to@example.com - 250 2.0.0 OK
+[2026-02-10 10:24:01 AM] to@example.com - 250 2.0.0 OK
+[2026-02-10 10:31:24 AM] to@example.com - 250 2.0.0 OK
+[2026-02-10 10:31:27 AM] to@example.com - 250 2.0.0 OK
+[2026-02-10 10:31:30 AM] recipient@example.com - 250 2.0.0 OK
+[2026-02-10 10:36:15 AM] to@example.com - 250 2.0.0 OK
+[2026-02-10 10:36:19 AM] to@example.com - 250 2.0.0 OK
+[2026-02-10 10:36:23 AM] recipient@example.com - 250 2.0.0 OK
+[2026-02-10 10:36:26 AM] recipient@example.com - 250 2.0.0 OK
