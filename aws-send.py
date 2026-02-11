@@ -482,15 +482,23 @@ def MakeRequest(url, target_url):
         return "Oops!", sys.exc_info()[0], "occurred."
 
 def Random(number=15):
-    min_char = int(number)
-    max_char = int(number)
+    try:
+        min_char = int(number)
+        max_char = int(number)
+    except ValueError:
+        min_char = 15
+        max_char = 15
     allchar = string.ascii_letters + string.digits
     rara = "".join(choice(allchar) for x in range(randint(min_char, max_char)))
     return rara
 
 def RandomNumber(number=15):
-    min_char = int(number)
-    max_char = int(number)
+    try:
+        min_char = int(number)
+        max_char = int(number)
+    except ValueError:
+        min_char = 15
+        max_char = 15
     allchar = string.digits
     rara = "".join(choice(allchar) for x in range(randint(min_char, max_char)))
     return rara
@@ -744,7 +752,10 @@ def ConnectSMTP(smtpserv,port,useauth,user,password,receivers,sender,usessl,msgi
     print(f"[DEBUG] sender: {sender}")
     print(f"[DEBUG] usessl: {usessl} (type: {type(usessl)})")
     
-    port = int(port)
+    try:
+        port = int(port)
+    except ValueError:
+        raise Exception(f"Invalid SMTP port: '{port}'. Please check your configuration (smtp.txt or setup.ini).")
     socket.setdefaulttimeout(60)  # 60 second timeout
     context = ssl.create_default_context()
 
@@ -1315,7 +1326,7 @@ def Sendout(emails,smtpserv,port,its_authy,username,password,fromemail,sender,it
             print(f"[DEBUG-SENDOUT] Sender: '{sender}'")
             print(f"[DEBUG-SENDOUT] SSL enabled: {its_secure}")
             
-            if ConnectSMTP(smtpserv,int(port),its_authy,findString(emails,username), password,emails,findString(emails,sender),its_secure,msg.as_string()):
+            if ConnectSMTP(smtpserv,port,its_authy,findString(emails,username), password,emails,findString(emails,sender),its_secure,msg.as_string()):
                 #servers.sendmail(fromemail, [emails], msg.as_string())
                 print('[ Success ]: '+Back.YELLOW+Fore.BLACK+' '+time.strftime("%H:%M:%S %p")+' '+Style.RESET_ALL+Fore.GREEN+' [ '+emails+' ]'+Style.RESET_ALL+' '+Back.GREEN+' 250 2.0.0 OK '+Style.RESET_ALL+"")
                 log_success(emails, "250 2.0.0 OK")
@@ -1328,7 +1339,7 @@ def Sendout(emails,smtpserv,port,its_authy,username,password,fromemail,sender,it
             while 'unexpectedly closed'.lower() in str(e).lower():
                 ##while ConnectSMTP(smtpserv,int(port),its_authy,username, password,emails,sender,its_secure,msg.as_string()) != True:
 
-                if ConnectSMTP(smtpserv,int(port),its_authy,findString(emails,username), password,emails,findString(emails,sender),its_secure,msg.as_string()):
+                if ConnectSMTP(smtpserv,port,its_authy,findString(emails,username), password,emails,findString(emails,sender),its_secure,msg.as_string()):
                     print('[ Success ]: '+Back.YELLOW+Fore.BLACK+' '+time.strftime("%H:%M:%S %p")+' '+Style.RESET_ALL+Fore.GREEN+' [ '+emails+' ]'+Style.RESET_ALL+' '+Back.GREEN+' 250 2.0.0 OK '+Style.RESET_ALL+"")
                     log_success(emails, "250 2.0.0 OK (retry)")
                     break
@@ -1339,7 +1350,7 @@ def Sendout(emails,smtpserv,port,its_authy,username,password,fromemail,sender,it
     except Exception as e:
         print(f"[DEBUG-SENDOUT] Outer exception: {e}")
         while 'unexpectedly closed'.lower() in str(e).lower():
-            if ConnectSMTP(smtpserv,int(port),its_authy,username, password,emails,sender,its_secure,msg.as_string()):
+            if ConnectSMTP(smtpserv,port,its_authy,username, password,emails,sender,its_secure,msg.as_string()):
                 print('[ Success ]: '+Back.YELLOW+Fore.BLACK+' '+time.strftime("%H:%M:%S %p")+' '+Style.RESET_ALL+Fore.GREEN+' [ '+emails+' ]'+Style.RESET_ALL+' '+Back.GREEN+' 250 2.0.0 OK '+Style.RESET_ALL+"")
                 log_success(emails, "250 2.0.0 OK (retry)")
                 break
@@ -1448,157 +1459,185 @@ def RandomArraySMTP(file="smtp.txt"):
     #print(mother_smtp_array)
     return mother_smtp_array
 
-try:
+if __name__ == '__main__':
     try:
-        if os.path.isfile('setup.ini'):
-            config = configparser.ConfigParser()
-            config.read("setup.ini", "utf8")
-            Token = config.get('TOKEN', 'token')
-            smtpserv = config.get('SMTP', 'smtpserv')
-            port = config.get('SMTP', 'port')
-            username = config.get('SMTP', 'username')
-            password = config.get('SMTP', 'password')
-            secure = config.get('SMTP', 'secure')
-            authy = config.get('SMTP', 'authy')
-            sender =  config.get('SMTP', 'fromemail')
-            priority =  config.get('SMTP', 'priority')
-            f_loadsmtp =  config.get('SMTP', 'loadsmtp')
-
-            name = config.get('SEND INFO', 'name')
-            fromemail =  config.get('SEND INFO', 'fromemail')
-            link =  config.get('SEND INFO', 'link') 
-
-            default_address = config.get('OPTION', 'leads')
-            subject = config.get('SEND INFO', 'subject')
-
-            msgtype = config.get('OPTION', 'mstype')
-            secs = config.get('OPTION', 'delay')
-            useRedirect = config.get('OPTION', 'useRedirect')
-            domain403 = config.get('OPTION', '403domain')
-            UseGoogle = config.get('OPTION', 'UseGoogle')
-
-            usedoc = config.get('DOC OPTION', 'usedoc')
-            sfile = config.get('DOC OPTION', 'Docname')
-            DocTit = config.get('DOC OPTION', 'DocTit')
-            Doctype = config.get('DOC OPTION', 'Doctype')
-            Docsecs = config.get('DOC OPTION', 'CreationDelay')
-            AutoHtml = config.get('DOC OPTION', 'AutoHtml')
-            KillHTML = config.get('DOC OPTION', 'Hide_HTML_Code')
-
-            IgnoreEmail = config.get('OPTION', 'IgnoreEmail')
-            IGNList = config.get('OPTION', 'IGNList')
-            IGType = config.get('OPTION', 'IGType')
-
-            threads = config.get('OPTION', 'thread')
-
-            UsePause = config.get('OPTION', 'UsePause')
-            PauseForSecs = config.get('OPTION', 'PauseForSecs')
-            AfterSendEmail = config.get('OPTION', 'AfterSendEmail')
-            reply_to = config.get('OPTION', 'reply')
-
-            UseGoogle = True if UseGoogle == '1' else False
-
-            UsePause = True if UsePause.lower() == 'true' else False
-
-            loadsmtp = True if f_loadsmtp.lower() == 'true' else False
-
-            its_authy = True  if authy.lower() == 'true' else False
-
-            usedoc = True  if usedoc.lower() == 'true' else False
-
-            its_secure = True  if secure.lower() == 'true' else False
-
-            use_sort = True  if IgnoreEmail.lower() == 'true' else False
-
-            autokilllink = True  if AutoHtml.lower() == 'true' else False
-
-            autoKillHTML = True  if KillHTML.lower() == 'true' else False
-
-            msg_priority = '2'  if priority.lower() == 'high'.lower() else '0'
-
-    except Exception as e:
-        print(str(e))
-        exit()
-    useRandomSmtp = False
-    istoken = True
-    Count = 0
-
-    if istoken:
-        queue = queue.Queue()
-
-        if loadsmtp:
-            if os.path.exists("smtp.txt") and os.path.getsize("smtp.txt") > 0:
-                print("SMTP-Auto is A bitch & it ROCKS!!!")
-                useRandomSmtp = True
-            else:
-                print("SMTP File Either Exist and it's Empty or does not Exist's")
-                print("So fuck off and check your sheet...")
-                exit()
-
         try:
-            texto =  codecs.open('message.html','r','utf8').read()
-            file = default_address
-            inputs = open(file,'r').read().splitlines()
+            if os.path.isfile('setup.ini'):
+                config = configparser.ConfigParser()
+                config.read("setup.ini", "utf8")
+                Token = config.get('TOKEN', 'token')
+                smtpserv = config.get('SMTP', 'smtpserv')
+                port = config.get('SMTP', 'port')
+                username = config.get('SMTP', 'username')
+                password = config.get('SMTP', 'password')
+                secure = config.get('SMTP', 'secure')
+                authy = config.get('SMTP', 'authy')
+                sender =  config.get('SMTP', 'fromemail')
+                priority =  config.get('SMTP', 'priority')
+                f_loadsmtp =  config.get('SMTP', 'loadsmtp')
+
+                name = config.get('SEND INFO', 'name')
+                fromemail =  config.get('SEND INFO', 'fromemail')
+                link =  config.get('SEND INFO', 'link') 
+
+                default_address = config.get('OPTION', 'leads')
+                subject = config.get('SEND INFO', 'subject')
+
+                msgtype = config.get('OPTION', 'mstype')
+                secs = config.get('OPTION', 'delay')
+                useRedirect = config.get('OPTION', 'useRedirect')
+                domain403 = config.get('OPTION', '403domain')
+                UseGoogle = config.get('OPTION', 'UseGoogle')
+
+                usedoc = config.get('DOC OPTION', 'usedoc')
+                sfile = config.get('DOC OPTION', 'Docname')
+                DocTit = config.get('DOC OPTION', 'DocTit')
+                Doctype = config.get('DOC OPTION', 'Doctype')
+                Docsecs = config.get('DOC OPTION', 'CreationDelay')
+                AutoHtml = config.get('DOC OPTION', 'AutoHtml')
+                KillHTML = config.get('DOC OPTION', 'Hide_HTML_Code')
+
+                IgnoreEmail = config.get('OPTION', 'IgnoreEmail')
+                IGNList = config.get('OPTION', 'IGNList')
+                IGType = config.get('OPTION', 'IGType')
+
+                threads = config.get('OPTION', 'thread')
+
+                UsePause = config.get('OPTION', 'UsePause')
+                PauseForSecs = config.get('OPTION', 'PauseForSecs')
+                AfterSendEmail = config.get('OPTION', 'AfterSendEmail')
+                reply_to = config.get('OPTION', 'reply')
+
+                UseGoogle = True if UseGoogle == '1' else False
+
+                UsePause = True if UsePause.lower() == 'true' else False
+
+                loadsmtp = True if f_loadsmtp.lower() == 'true' else False
+
+                its_authy = True  if authy.lower() == 'true' else False
+
+                usedoc = True  if usedoc.lower() == 'true' else False
+
+                its_secure = True  if secure.lower() == 'true' else False
+
+                use_sort = True  if IgnoreEmail.lower() == 'true' else False
+
+                autokilllink = True  if AutoHtml.lower() == 'true' else False
+
+                autoKillHTML = True  if KillHTML.lower() == 'true' else False
+
+                msg_priority = '2'  if priority.lower() == 'high'.lower() else '0'
+
         except Exception as e:
             print(str(e))
             exit()
+        useRandomSmtp = False
+        istoken = True
+        Count = 0
 
+        if istoken:
+            queue = queue.Queue()
 
-        try:
-
-            if use_sort:
-                lines = open(file).read()
-                inputs = sort_leads(lines,IGNList,IGType)
-
-            for i in range(int(threads)):
-                t = dmailer(queue)
-                t.daemon = True
-                t.start()
-            for i in inputs:
-                if UsePause:
-                    Count += 1
-                    if  Count >= int(AfterSendEmail):
-                        print("Sleeping for %s secs" %(PauseForSecs))
-                        time.sleep(int(PauseForSecs))
-                        Count = 0
-                email = i.rstrip().lower()
-                if check(email):
-                    
-                    #print("[@] {}: Queueing...".format(email))
-                    if useRandomSmtp:
-                        random_smtp = RandomArraySMTP()
-                        selected_smtp = random.sample(random_smtp, 1)[0]
-                        while selected_smtp['smtp_count'] == selected_smtp['smtp_max']:
-                            selected_smtp = random.sample(random_smtp, 1)[0]
-                            print("{0} used its MaxLimit:{1} ---> Randomly Reselecting another...".format(selected_smtp['smtp_id'],selected_smtp['smtp_max']))
-                        selected_smtp['smtp_count'] = str(int(selected_smtp['smtp_count']) + 1)
-                        smtpserv = selected_smtp['smtp_server']
-                        port = selected_smtp['smtp_port']
-                        its_authy = selected_smtp['smtp_authy']
-                        username = selected_smtp['smtp_username']
-                        password = selected_smtp['smtp_password']
-                        fromemail= selected_smtp['msg_fromemail']
-                        sender = selected_smtp['smtp_fromemail']
-                        its_secure = selected_smtp['smtp_secure']
-                        
-                        #smtpserv,port,useauth,user,password,fromemail,sender,usessl
-                        queue.put((email,smtpserv,port,its_authy,username,password,fromemail,sender,its_secure))
-                    else:
-                        queue.put((email,smtpserv,port,its_authy,username,password,fromemail,sender,its_secure))
+            if loadsmtp:
+                if os.path.exists("smtp.txt") and os.path.getsize("smtp.txt") > 0:
+                    print("SMTP-Auto is A bitch & it ROCKS!!!")
+                    useRandomSmtp = True
                 else:
-                    print('[ Failed! ]: '+Back.YELLOW+Fore.BLACK+' '+time.strftime("%H:%M:%S %p")+' '+Style.RESET_ALL+Fore.RED+' [ '+email+' ]'+Style.RESET_ALL+' '+Back.RED+' Invalid email '+Style.RESET_ALL)
-                    log_failed(email, "Invalid email")
-                    ##print('[!] '+email+': Failed [ Invalid email ]')
-            
-            queue.join()
-            
+                    print("SMTP File Either Exist and it's Empty or does not Exist's")
+                    print("So fuck off and check your sheet...")
+                    exit()
 
-        except Exception as e:
-            print(str(e))
+            try:
+                texto =  codecs.open('message.html','r','utf8').read()
+                file = default_address
+                inputs = open(file,'r').read().splitlines()
+            except Exception as e:
+                print(str(e))
+                exit()
 
-    else:
+
+            try:
+                # Validate configuration integers
+                try:
+                    threads = int(threads)
+                except ValueError:
+                    print(f"Warning: Invalid threads value '{threads}'. Defaulting to 1.")
+                    threads = 1
+
+                try:
+                    AfterSendEmail = int(AfterSendEmail)
+                except ValueError:
+                    print(f"Warning: Invalid AfterSendEmail value '{AfterSendEmail}'. Defaulting to 1.")
+                    AfterSendEmail = 1
+
+                try:
+                    PauseForSecs = int(PauseForSecs)
+                except ValueError:
+                    print(f"Warning: Invalid PauseForSecs value '{PauseForSecs}'. Defaulting to 1.")
+                    PauseForSecs = 1
+                # Validate useRedirect as it's used as int later
+                try:
+                    int(useRedirect)
+                except ValueError:
+                    print(f"Configuration Warning: Invalid useRedirect value '{useRedirect}'. Defaulting to 0.")
+                    useRedirect = "0"
+                except ValueError as e:
+                    print(f"Configuration Error: {e}. Please check aws-setup.ini / setup.ini for non-numeric values (e.g. '_comment').")
+                    exit()
+
+                if use_sort:
+                    lines = open(file).read()
+                    inputs = sort_leads(lines,IGNList,IGType)
+
+                for i in range(int(threads)):
+                    t = dmailer(queue)
+                    t.daemon = True
+                    t.start()
+                for i in inputs:
+                    if UsePause:
+                        Count += 1
+                        if  Count >= int(AfterSendEmail):
+                            print("Sleeping for %s secs" %(PauseForSecs))
+                            time.sleep(int(PauseForSecs))
+                            Count = 0
+                    email = i.rstrip().lower()
+                    if check(email):
+                        
+                        #print("[@] {}: Queueing...".format(email))
+                        if useRandomSmtp:
+                            random_smtp = RandomArraySMTP()
+                            selected_smtp = random.sample(random_smtp, 1)[0]
+                            while selected_smtp['smtp_count'] == selected_smtp['smtp_max']:
+                                selected_smtp = random.sample(random_smtp, 1)[0]
+                                print("{0} used its MaxLimit:{1} ---> Randomly Reselecting another...".format(selected_smtp['smtp_id'],selected_smtp['smtp_max']))
+                            selected_smtp['smtp_count'] = str(int(selected_smtp['smtp_count']) + 1)
+                            smtpserv = selected_smtp['smtp_server']
+                            port = selected_smtp['smtp_port']
+                            its_authy = selected_smtp['smtp_authy']
+                            username = selected_smtp['smtp_username']
+                            password = selected_smtp['smtp_password']
+                            fromemail= selected_smtp['msg_fromemail']
+                            sender = selected_smtp['smtp_fromemail']
+                            its_secure = selected_smtp['smtp_secure']
+                            
+                            #smtpserv,port,useauth,user,password,fromemail,sender,usessl
+                            queue.put((email,smtpserv,port,its_authy,username,password,fromemail,sender,its_secure))
+                        else:
+                            queue.put((email,smtpserv,port,its_authy,username,password,fromemail,sender,its_secure))
+                    else:
+                        print('[ Failed! ]: '+Back.YELLOW+Fore.BLACK+' '+time.strftime("%H:%M:%S %p")+' '+Style.RESET_ALL+Fore.RED+' [ '+email+' ]'+Style.RESET_ALL+' '+Back.RED+' Invalid email '+Style.RESET_ALL)
+                        log_failed(email, "Invalid email")
+                        ##print('[!] '+email+': Failed [ Invalid email ]')
+                
+                queue.join()
+                
+
+            except Exception as e:
+                print(str(e))
+
+        else:
+            exit()
+
+    except Exception as e:
+        print(f"[!] Exception: {str(e)} exiting...")
         exit()
-
-except Exception as e:
-    print(f"[!] Exception: {str(e)} exiting...")
-    exit()
